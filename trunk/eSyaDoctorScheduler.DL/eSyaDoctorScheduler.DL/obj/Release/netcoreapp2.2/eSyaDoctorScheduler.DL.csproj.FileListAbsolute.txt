@@ -1,0 +1,16 @@
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.deps.json
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.runtimeconfig.json
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.runtimeconfig.dev.json
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.dll
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.pdb
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.DO.dll
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.IF.dll
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.DO.pdb
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\bin\Release\netcoreapp2.2\eSyaDoctorScheduler.IF.pdb
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\obj\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.csprojAssemblyReference.cache
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\obj\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.csproj.CoreCompileInputs.cache
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\obj\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.AssemblyInfoInputs.cache
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\obj\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.AssemblyInfo.cs
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\obj\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.csproj.CopyComplete
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\obj\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.dll
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.DL\eSyaDoctorScheduler.DL\obj\Release\netcoreapp2.2\eSyaDoctorScheduler.DL.pdb

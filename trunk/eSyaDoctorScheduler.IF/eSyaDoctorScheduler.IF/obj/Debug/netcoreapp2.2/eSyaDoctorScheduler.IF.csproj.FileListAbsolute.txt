@@ -1,0 +1,12 @@
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\bin\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.deps.json
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\bin\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.dll
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\bin\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.pdb
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\bin\Debug\netcoreapp2.2\eSyaDoctorScheduler.DO.dll
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\bin\Debug\netcoreapp2.2\eSyaDoctorScheduler.DO.pdb
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\obj\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.csprojAssemblyReference.cache
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\obj\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.csproj.CoreCompileInputs.cache
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\obj\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.AssemblyInfoInputs.cache
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\obj\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.AssemblyInfo.cs
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\obj\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.csproj.CopyComplete
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\obj\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.dll
+D:\eSya Project\Solution\Project_eSyaWebAPI\eSyaDoctorScheduler.WebAPI\trunk\eSyaDoctorScheduler.IF\eSyaDoctorScheduler.IF\obj\Debug\netcoreapp2.2\eSyaDoctorScheduler.IF.pdb

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1738
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eSyaDoctorScheduler.DO", "eSyaDoctorScheduler.DO\eSyaDoctorScheduler.DO.csproj", "{715AC9F3-DD8B-4771-9393-1FAC8640716D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{715AC9F3-DD8B-4771-9393-1FAC8640716D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{715AC9F3-DD8B-4771-9393-1FAC8640716D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{715AC9F3-DD8B-4771-9393-1FAC8640716D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{715AC9F3-DD8B-4771-9393-1FAC8640716D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E265B512-45DE-422D-A46B-8B1A61FE76FC}
+	EndGlobalSection
+EndGlobal

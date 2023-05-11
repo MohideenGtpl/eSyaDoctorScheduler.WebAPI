@@ -1,0 +1,406 @@
+﻿using eSyaDoctorScheduler.DL.Entities;
+using eSyaDoctorScheduler.DO;
+using eSyaDoctorScheduler.DO.StaticVariables;
+using eSyaDoctorScheduler.IF;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace eSyaDoctorScheduler.DL.Repository
+{
+    public class OpClinicDetailsRepository : IOpClinicDetailsRepository
+    {
+        private eSyaEnterpriseContext _context { get; set; }
+        public OpClinicDetailsRepository(eSyaEnterpriseContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<DO_EpisodeType>> GetEpisodeType()
+        {
+            var ep = await _context.GtEfbe01
+                .Where(w => w.AllowConsultation && w.ActiveStatus)
+                .Select(x => new DO_EpisodeType
+                {
+                    EpisodeId = x.EpisodeId,
+                    EpisodeDesc = x.EpisodeDesc,
+                }).OrderBy(o => o.Sequence).ToListAsync();
+
+            return ep;
+        }
+
+
+        public async Task<List<DO_ClinicType>> GetClinicTypes(int businessKey)
+        {
+
+            var cc = await _context.GtEsopcl
+                .Join(_context.GtEcapcd,
+                    c => c.ClinicId,
+                    a => a.ApplicationCode,
+                    (c, a) => new { c, a })
+                .Join(_context.GtEcapcd,
+                    cl => cl.c.ConsultationId,
+                    a => a.ApplicationCode,
+                    (cl, a) => new { cl, a })
+                .Where(w => w.cl.c.BusinessKey == businessKey
+                   && w.cl.c.ActiveStatus)
+                .Select(x => new DO_ClinicType
+                {
+                    ClinicType = x.cl.c.ClinicId,
+                    ClinicTypeCode = x.cl.a.ShortCode,
+                    ClinicTypeDesc = x.cl.a.CodeDesc,
+                    ConsultationType = x.cl.c.ConsultationId,
+                    ConsultationTypeCode = x.a.ShortCode,
+                    ConsultationTypeDesc = x.a.CodeDesc,
+                })
+                .OrderBy(o => o.ClinicTypeDesc)
+                .ThenBy(o => o.ConsultationTypeDesc)
+                .ToListAsync();
+
+            return cc;
+        }
+
+        public async Task<List<DO_Specialty>> GetSpecialty(int businessKey)
+        {
+            var sp = await _context.GtEsspcd
+                .Join(_context.GtEsspbl,
+                    s => s.SpecialtyId,
+                    b => b.SpecialtyId,
+                    (s, b) => new { s, b })
+                .Where(w => w.b.BusinessKey == businessKey
+                    && _context.GtEssppa.Any(a => a.BusinessKey == w.b.BusinessKey && a.SpecialtyId == w.b.SpecialtyId
+                                    && a.ParameterId == AppParameter.Specialty.AllowConsulation
+                                    && a.ParmAction && a.ActiveStatus)
+                    && w.s.ActiveStatus && w.b.ActiveStatus)
+                .OrderBy(o => o.s.SpecialtyDesc)
+                .Select(x => new DO_Specialty
+                {
+                    SpecialtyId = x.s.SpecialtyId,
+                    SpecialtyDesc = x.s.SpecialtyDesc,
+                }).Distinct().ToListAsync();
+
+            return sp;
+        }
+
+        public async Task<List<DO_DoctorClinicSchedule>> GetDoctorScheduleListByClinicTypeSpecialtyDate(int businessKey,
+        int clinicType, int consultationType,
+        int specialtyId, DateTime scheduleDate)
+        {
+
+            var wk = scheduleDate.DayOfWeek.ToString();
+            var wk_No = CommonMethod.GetWeekOfMonth(scheduleDate);
+
+            var l_ds_1 = await _context.GtEsdocd
+                .GroupJoin(_context.GtEsdos1.Where(w => w.BusinessKey == businessKey
+                            && w.DayOfWeek.ToUpper() == wk.ToUpper()
+                            && w.ConsultationId == consultationType
+                            && w.ClinicId == clinicType
+                            && w.SpecialtyId == specialtyId
+                            && ((wk_No == 1 && w.Week1) || (wk_No == 2 && w.Week2)
+                                || (wk_No == 3 && w.Week3) || (wk_No == 4 && w.Week4)
+                                || (wk_No == 5 && w.Week5) || (wk_No == 6 && w.Week5))
+                            && w.ActiveStatus),
+                    d => d.DoctorId,
+                    s => s.DoctorId,
+                    (d, s) => new { d, s }).DefaultIfEmpty()
+                .SelectMany(d => d.s.DefaultIfEmpty(), (d, s) => new { d.d, s })
+                .GroupJoin(_context.GtEsdold.Where(w =>
+                            scheduleDate.Date >= w.OnLeaveFrom.Date
+                            && scheduleDate.Date <= w.OnLeaveTill.Date
+                            && w.ActiveStatus),
+                    ds => ds.d.DoctorId,
+                    l => l.DoctorId,
+                    (ds, l) => new { ds, l = l.FirstOrDefault() }).DefaultIfEmpty()
+                .Where(w => w.ds.d.ActiveStatus
+                            && !_context.GtEsdos2.Any(r => r.BusinessKey == businessKey
+                                   && r.ConsultationId == consultationType
+                                   && r.ClinicId == clinicType
+                                   && r.SpecialtyId == specialtyId
+                                   && r.DoctorId == w.ds.d.DoctorId
+                                   && r.ScheduleDate.Date == scheduleDate.Date
+                                   && r.ActiveStatus))
+                .AsNoTracking()
+                .Select(x => new DO_DoctorClinicSchedule
+                {
+                    DoctorId = x.ds.d.DoctorId,
+                    DoctorName = x.ds.d.DoctorName,
+                    DoctorRemarks = x.ds.d.DoctorRemarks,
+                    DayOfWeek = x.ds.s != null ? x.ds.s.DayOfWeek : "",
+                    ScheduleDate = scheduleDate,
+                    NumberofPatients = x.ds.s != null ? x.ds.s.NoOfPatients : 0,
+                    FromTime = x.ds.s != null ? x.ds.s.ScheduleFromTime : new TimeSpan(9, 00, 00),
+                    ToTime = x.ds.s != null ? x.ds.s.ScheduleToTime : new TimeSpan(18, 00, 00),
+                    TimeSlotInMintues = x.ds.d.TimeSlotInMintues,
+                    IsAvailable = x.ds.s != null ? true : false,
+                    IsOnLeave = x.l != null ? x.l.ActiveStatus : false
+                }).ToListAsync();
+
+
+            var l_ds_2 = await _context.GtEsdocd
+               .GroupJoin(_context.GtEsdos2.Where(w => w.BusinessKey == businessKey
+                           && w.ConsultationId == consultationType
+                           && w.ClinicId == clinicType
+                           && w.SpecialtyId == specialtyId
+                           && w.ScheduleDate.Date == scheduleDate.Date
+                           && w.ActiveStatus),
+                   d => d.DoctorId,
+                   s => s.DoctorId,
+                   (d, s) => new { d, s }).DefaultIfEmpty()
+               .SelectMany(d => d.s.DefaultIfEmpty(), (d, s) => new { d.d, s })
+               .GroupJoin(_context.GtEsdold.Where(w =>
+                           scheduleDate.Date >= w.OnLeaveFrom.Date
+                           && scheduleDate.Date <= w.OnLeaveTill.Date
+                           && w.ActiveStatus),
+                   ds => ds.d.DoctorId,
+                   l => l.DoctorId,
+                   (ds, l) => new { ds, l = l.FirstOrDefault() }).DefaultIfEmpty()
+               .Where(w => w.ds.d.ActiveStatus)
+               .AsNoTracking()
+               .Select(x => new DO_DoctorClinicSchedule
+               {
+                   DoctorId = x.ds.d.DoctorId,
+                   DoctorName = x.ds.d.DoctorName,
+                   DoctorRemarks = x.ds.d.DoctorRemarks,
+                   DayOfWeek = "",
+                   ScheduleDate = scheduleDate,
+                   NumberofPatients = x.ds.s != null ? x.ds.s.NoOfPatients : 0,
+                   FromTime = x.ds.s != null ? x.ds.s.ScheduleFromTime : new TimeSpan(9, 00, 00),
+                   ToTime = x.ds.s != null ? x.ds.s.ScheduleToTime : new TimeSpan(18, 00, 00),
+                   TimeSlotInMintues = x.ds.d.TimeSlotInMintues,
+                   IsAvailable = x.ds.s != null ? true : false,
+                   IsOnLeave = x.l != null ? x.l.ActiveStatus : false
+               }).ToListAsync();
+
+            var l_ds = l_ds_1.Union(l_ds_2);
+
+            return l_ds.Where(w => w.IsAvailable).ToList();
+        }
+
+
+        public async Task<List<DO_DoctorClinicSchedule>> GetDoctorScheduleListForDoctorDateRange(int businessKey,
+             int clinicType, int consultationType,
+             int specialtyId, int doctorId, DateTime fromDate, DateTime toDate)
+        {
+
+            List<DO_DoctorClinicSchedule> l_sc = new List<DO_DoctorClinicSchedule>();
+            while (fromDate <= toDate)
+            {
+                var wk = fromDate.DayOfWeek.ToString();
+                var wk_No = CommonMethod.GetWeekOfMonth(fromDate);
+
+                var isLeave = _context.GtEsdold.Any(l => l.DoctorId == doctorId
+                                   && fromDate.Date >= l.OnLeaveFrom.Date
+                                   && fromDate.Date <= l.OnLeaveTill.Date
+                                   && l.ActiveStatus);
+                if (!isLeave)
+                {
+
+                    var l_ds = await _context.GtEsdocd
+                        .Join(_context.GtEsdosc.Where(w => w.BusinessKey == businessKey
+                                && w.DoctorId == doctorId && w.SpecialtyId == specialtyId
+                                && w.ClinicId == clinicType
+                                && w.ConsultationId == consultationType && w.ActiveStatus
+                                && w.ScheduleChangeDate.Date == fromDate.Date),
+                            d => d.DoctorId,
+                            s => s.DoctorId,
+                            (d, s) => new { d, s })
+                         .Select(x => new DO_DoctorClinicSchedule
+                         {
+                             DoctorId = x.d.DoctorId,
+                             DoctorName = x.d.DoctorName,
+                             DoctorRemarks = x.d.DoctorRemarks,
+                             DayOfWeek = "",
+                             ScheduleDate = fromDate,
+                             NumberofPatients = 0,
+                             FromTime = x.s.ScheduleFromTime,
+                             ToTime = x.s.ScheduleToTime,
+                             TimeSlotInMintues = x.d.TimeSlotInMintues,
+                             IsAvailable = true,
+                             IsOnLeave = false
+                         }).ToListAsync();
+
+                    l_sc.AddRange(l_ds);
+
+                    if (l_ds.Count() <= 0)
+                    {
+
+                        var l_ds_1 = await _context.GtEsdocd
+                            .GroupJoin(_context.GtEsdos1.Where(w => w.BusinessKey == businessKey
+                                        && w.DayOfWeek.ToUpper() == wk.ToUpper()
+                                        && w.ConsultationId == consultationType
+                                        && w.ClinicId == clinicType
+                                        && w.SpecialtyId == specialtyId
+                                        && ((wk_No == 1 && w.Week1) || (wk_No == 2 && w.Week2)
+                                            || (wk_No == 3 && w.Week3) || (wk_No == 4 && w.Week4)
+                                            || (wk_No == 5 && w.Week5) || (wk_No == 6 && w.Week5))
+                                        && w.ActiveStatus),
+                                d => d.DoctorId,
+                                s => s.DoctorId,
+                                (d, s) => new { d, s }).DefaultIfEmpty()
+                             .SelectMany(d => d.s.DefaultIfEmpty(), (d, s) => new { d.d, s })
+                             .GroupJoin(_context.GtEsdold.Where(w => w.DoctorId == doctorId
+                                        && fromDate.Date >= w.OnLeaveFrom.Date
+                                        && fromDate.Date <= w.OnLeaveTill.Date
+                                        && w.ActiveStatus),
+                                ds => ds.d.DoctorId,
+                                l => l.DoctorId,
+                                (ds, l) => new { ds, l = l.FirstOrDefault() }).DefaultIfEmpty()
+                            .Where(w => w.ds.d.ActiveStatus && w.ds.d.DoctorId == doctorId
+                                           && !_context.GtEsdos2.Any(r => r.BusinessKey == businessKey
+                                           && r.ConsultationId == consultationType
+                                           && r.ClinicId == clinicType
+                                           && r.SpecialtyId == specialtyId
+                                           && r.DoctorId == doctorId
+                                           && r.ScheduleDate.Date == fromDate.Date
+                                           && r.ActiveStatus))
+                            .AsNoTracking()
+                            .Select(x => new DO_DoctorClinicSchedule
+                            {
+                                DoctorId = x.ds.d.DoctorId,
+                                DoctorName = x.ds.d.DoctorName,
+                                DoctorRemarks = x.ds.d.DoctorRemarks,
+                                DayOfWeek = x.ds.s != null ? x.ds.s.DayOfWeek : "",
+                                ScheduleDate = fromDate,
+                                NumberofPatients = x.ds.s != null ? x.ds.s.NoOfPatients : 0,
+                                FromTime = x.ds.s != null ? x.ds.s.ScheduleFromTime : new TimeSpan(9, 00, 00),
+                                ToTime = x.ds.s != null ? x.ds.s.ScheduleToTime : new TimeSpan(18, 00, 00),
+                                TimeSlotInMintues = x.ds.d.TimeSlotInMintues,
+                                IsAvailable = x.ds.s != null ? true : false,
+                                IsOnLeave = x.l != null ? x.l.ActiveStatus : false
+                            }).ToListAsync();
+
+                        var l_ds_2 = await _context.GtEsdocd
+                            .GroupJoin(_context.GtEsdos2.Where(w => w.BusinessKey == businessKey
+                                   && w.ConsultationId == consultationType
+                                   && w.ClinicId == clinicType
+                                   && w.SpecialtyId == specialtyId
+                                   && w.ScheduleDate.Date == fromDate.Date
+                                   && w.ActiveStatus),
+                                d => d.DoctorId,
+                                s => s.DoctorId,
+                                (d, s) => new { d, s }).DefaultIfEmpty()
+                             .SelectMany(d => d.s.DefaultIfEmpty(), (d, s) => new { d.d, s })
+                             .GroupJoin(_context.GtEsdold.Where(w => w.DoctorId == doctorId
+                                        && fromDate.Date >= w.OnLeaveFrom.Date
+                                        && fromDate.Date <= w.OnLeaveTill.Date
+                                        && w.ActiveStatus),
+                                ds => ds.d.DoctorId,
+                                l => l.DoctorId,
+                                (ds, l) => new { ds, l = l.FirstOrDefault() }).DefaultIfEmpty()
+                            .Where(w => w.ds.d.ActiveStatus && w.ds.d.DoctorId == doctorId
+                                           && !_context.GtEsdos2.Any(r => r.BusinessKey == businessKey
+                                               && r.ConsultationId == consultationType
+                                               && r.ClinicId == clinicType
+                                               && r.SpecialtyId == specialtyId
+                                               && r.DoctorId == doctorId
+                                               && r.ScheduleDate.Date == fromDate.Date
+                                               && r.ActiveStatus))
+                            .AsNoTracking()
+                            .Select(x => new DO_DoctorClinicSchedule
+                            {
+                                DoctorId = x.ds.d.DoctorId,
+                                DoctorName = x.ds.d.DoctorName,
+                                DoctorRemarks = x.ds.d.DoctorRemarks,
+                                DayOfWeek = "",
+                                ScheduleDate = fromDate,
+                                NumberofPatients = x.ds.s != null ? x.ds.s.NoOfPatients : 0,
+                                FromTime = x.ds.s != null ? x.ds.s.ScheduleFromTime : new TimeSpan(9, 00, 00),
+                                ToTime = x.ds.s != null ? x.ds.s.ScheduleToTime : new TimeSpan(18, 00, 00),
+                                TimeSlotInMintues = x.ds.d.TimeSlotInMintues,
+                                IsAvailable = x.ds.s != null ? true : false,
+                                IsOnLeave = x.l != null ? x.l.ActiveStatus : false
+                            }).ToListAsync();
+
+                        l_sc.AddRange(l_ds_1);
+                        l_sc.AddRange(l_ds_2);
+                    }
+                }
+
+                fromDate = fromDate.AddDays(1);
+            }
+            return l_sc.Where(w => w.IsAvailable).ToList();
+        }
+
+        public async Task<List<DO_DoctorClinicSchedule>> GetDoctorListByClinicType(int businessKey,
+         int clinicType, int consultationType,
+         int specialtyId)
+        {
+            var l_ds = await _context.GtEsdocd
+                .Join(_context.GtEsdocl,
+                    d => d.DoctorId,
+                    c => c.DoctorId,
+                    (d, c) => new { d, c })
+                .Join(_context.GtEsspcd,
+                    dc => dc.c.SpecialtyId,
+                    s => s.SpecialtyId,
+                    (dc, s) => new { dc, s })
+                .Where(w =>
+                            w.dc.c.BusinessKey == businessKey
+                        && w.dc.c.ClinicId == clinicType
+                        && w.dc.c.ConsultationId == consultationType
+                        && (w.dc.c.SpecialtyId == specialtyId || specialtyId == 0)
+                        && w.dc.d.ActiveStatus && w.dc.c.ActiveStatus)
+                .AsNoTracking()
+                .Select(x => new DO_DoctorClinicSchedule
+                {
+                    SpecialtyId = x.dc.c.SpecialtyId,
+                    SpecialtyDesc = x.s.SpecialtyDesc,
+                    DoctorId = x.dc.d.DoctorId,
+                    DoctorName = x.dc.d.DoctorName,
+                    DoctorRemarks = x.dc.d.DoctorRemarks,
+                    TimeSlotInMintues = x.dc.d.TimeSlotInMintues
+
+                }).ToListAsync();
+
+
+            return l_ds;
+        }
+
+        public async Task<List<DO_DoctorClinicSchedule>> GetDoctorListWeeklyScheduleTime(int businessKey,
+          int clinicType, int consultationType,
+          int specialtyId, int doctorId)
+        {
+            var l_ds = await _context.GtEsdocd
+                .Join(_context.GtEsdocl,
+                    d => d.DoctorId,
+                    c => c.DoctorId,
+                    (d, c) => new { d, c })
+                .Join(_context.GtEsspcd,
+                    dc => dc.c.SpecialtyId,
+                    s => s.SpecialtyId,
+                    (dc, s) => new { dc, s })
+                .GroupJoin(_context.GtEsdos1.Where(w => w.ActiveStatus),
+                    dcs => new { dcs.dc.c.ClinicId, dcs.dc.c.ConsultationId, dcs.dc.d.DoctorId },
+                    s => new { s.ClinicId, s.ConsultationId, s.DoctorId },
+                    (dcs, s) => new { dcs, s }).DefaultIfEmpty()
+                .SelectMany(d => d.s.DefaultIfEmpty(), (d, s) => new { d.dcs, s })
+                .Where(w =>
+                            w.dcs.dc.c.BusinessKey == businessKey
+                        && w.dcs.dc.c.ClinicId == clinicType
+                        && w.dcs.dc.c.ConsultationId == consultationType
+                        && (w.dcs.dc.c.SpecialtyId == specialtyId || specialtyId == 0)
+                        && (w.dcs.dc.d.DoctorId == doctorId || doctorId == 0)
+                        && w.dcs.dc.d.ActiveStatus && w.dcs.dc.c.ActiveStatus)
+                .AsNoTracking()
+                .Select(x => new DO_DoctorClinicSchedule
+                {
+                    SpecialtyId = x.dcs.dc.c.SpecialtyId,
+                    SpecialtyDesc = x.dcs.s.SpecialtyDesc,
+                    DoctorId = x.dcs.dc.d.DoctorId,
+                    DoctorName = x.dcs.dc.d.DoctorName,
+                    DoctorRemarks = x.dcs.dc.d.DoctorRemarks,
+                    DayOfWeek = x.s.DayOfWeek ?? "",
+                    FromTime = x.s != null ? (TimeSpan?)x.s.ScheduleFromTime : null,
+                    ToTime = x.s != null ? (TimeSpan?)x.s.ScheduleToTime : null,
+                    TimeSlotInMintues = x.dcs.dc.d.TimeSlotInMintues
+                }).ToListAsync();
+            return l_ds;
+        }
+
+
+
+    }
+}

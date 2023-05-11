@@ -1,0 +1,31 @@
+﻿using eSyaDoctorScheduler.DO;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace eSyaDoctorScheduler.IF
+{
+    public interface IOpClinicDetailsRepository
+    {
+        Task<List<DO_ClinicType>> GetClinicTypes(int businessKey);
+        Task<List<DO_Specialty>> GetSpecialty(int businessKey);
+
+        Task<List<DO_DoctorClinicSchedule>> GetDoctorScheduleListByClinicTypeSpecialtyDate(int businessKey,
+        int clinicType, int consultationType,
+        int specialtyId, DateTime scheduleDate);
+
+        Task<List<DO_DoctorClinicSchedule>> GetDoctorScheduleListForDoctorDateRange(int businessKey,
+             int clinicType, int consultationType,
+             int specialtyId, int doctorId, DateTime fromDate, DateTime toDate);
+
+        Task<List<DO_DoctorClinicSchedule>> GetDoctorListByClinicType(int businessKey,
+          int clinicType, int consultationType,
+          int specialtyId);
+
+        Task<List<DO_DoctorClinicSchedule>> GetDoctorListWeeklyScheduleTime(int businessKey,
+          int clinicType, int consultationType,
+          int specialtyId, int doctorId);
+
+    }
+}
